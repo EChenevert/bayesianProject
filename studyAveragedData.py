@@ -5,8 +5,9 @@ from scipy import stats
 
 
 data = pf.load_data()
-yearly = pf.average_byyear_bysite_seasonal(data)
-lasRates = yearly[yearly['Year (yyyy)'] > 2019].groupby('Simple site').median()  # [yearly['Year (yyyy)'] > 2019]
+lasRates = pf.average_bysite(data)
+# yearly = pf.average_byyear_bysite_seasonal(data)
+# lasRates = yearly[yearly['Year (yyyy)'] > 2019].groupby('Simple site').median()  # [yearly['Year (yyyy)'] > 2019]
 
 perc = pd.read_csv(r"D:\Etienne\fall2022\CRMS_data\bayes2year\12006_PercentFlooded_CalendarYear\12006.csv",
                    encoding="unicode escape")
@@ -52,8 +53,8 @@ def outlierrm(df, thres=3):
     if 'Basins' in df.columns.values or 'Community' in df.columns.values:
         print('True')
         switch = True
-        holdstrings = df[['Basins', 'Community']]
-        df = df.drop(['Basins', 'Community'], axis=1)
+        holdstrings = df[['Community']]
+        df = df.drop(['Community'], axis=1)
     df = df.apply(pd.to_numeric)
     length = len(df.columns.values)
     for col in df.columns.values:
@@ -70,7 +71,7 @@ def outlierrm(df, thres=3):
 dfi = df[[
     'RSLR (mm/yr)', 'Accretion Rate (mm/yr)', 'avg_flooding (ft)', '90%thUpper_flooding (ft)',
     '10%thLower_flooding (ft)', 'std_deviation_avg_flooding (ft)', 'avg_percentflooded (%)', 'distance_to_river_m',
-    'NDVI', 'windspeed', 'Tide_Amp (ft)'
+    'NDVI', 'windspeed', 'Tide_Amp (ft)', 'Community'
 ]]
 
 dfi = outlierrm(dfi, thres=2)

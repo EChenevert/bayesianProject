@@ -16,51 +16,51 @@ def getB(gamma, mN, t, phi):
     return (N - gamma)/scalar
 
 
-def iterative_prog_wPrior(phi, t, prior_vect):
-    """
-    I believe this is the hyperparameter tuning using the train set
-    :param B: random initial beta hyperparameter
-    :param a: random initial alpha hyperparameter
-    :param phi: training data matrix
-    :param t: training target vector
-    :return: ideal beta, alpha, and effective lambda
-    """
-    B = np.random.uniform(0, 10)
-    a = np.random.uniform(0, 10)
-    Blist = [B]
-    alist = [a]
-    itr = 0
-    switch = 'off'
-    while switch == 'off':
-        I = np.identity(len(phi[0, :]))  # make identity matrix the length of the input data's columns
-        std = np.std(prior_vect)
-        I = std*I
-        m0 = np.mean(prior_vect)
-
-        SN = np.linalg.inv(a*I + B*(phi.T@phi))  # stays the same --> using infinitely broad prior
-        # S0 = 1  # is that right? for standard normal distribution.....????
-        mNfromData = B*(SN@(phi.T@t))
-        priormeanVect = np.full(shape=len(mNfromData), fill_value=m0, dtype=float)
-        mN = np.add(priormeanVect, mNfromData)
-
-        # aI = a*I
-        # aIm0 = aI@m0
-        # Bphit = np.expand_dims(B*(phi.T@t), axis=1)
-        # aIplusBphit = np.add(aIm0, Bphit)
-        # mN = SN@aIplusBphit
-
-        eigs_logLHessian = np.linalg.eigvals(B*(phi.T@phi))  # derived by taking logL of Hessian M to max evidence
-        gamma = getgamma(eigs_logLHessian, a)
-        B = getB(gamma, mN, t, phi)
-        Blist.append(B)
-        a = gamma/(mN.T@mN)
-        alist.append(a)
-        itr += 1
-        if abs(Blist[itr] - Blist[itr-1]) < 0.000001 and abs(alist[itr] - alist[itr-1]) < 0.000001:  # DAMN this seems crazy
-            switch = 'on'
-        if itr > 1000:
-            switch = 'on'
-    return B, a, a/B, itr
+# def iterative_prog_wPrior(phi, t, prior_vect):
+#     """
+#     I believe this is the hyperparameter tuning using the train set
+#     :param B: random initial beta hyperparameter
+#     :param a: random initial alpha hyperparameter
+#     :param phi: training data matrix
+#     :param t: training target vector
+#     :return: ideal beta, alpha, and effective lambda
+#     """
+#     B = np.random.uniform(0, 10)
+#     a = np.random.uniform(0, 10)
+#     Blist = [B]
+#     alist = [a]
+#     itr = 0
+#     switch = 'off'
+#     while switch == 'off':
+#         I = np.identity(len(phi[0, :]))  # make identity matrix the length of the input data's columns
+#         std = np.std(prior_vect)
+#         I = std*I
+#         m0 = np.mean(prior_vect)
+#
+#         SN = np.linalg.inv(a*I + B*(phi.T@phi))  # stays the same --> using infinitely broad prior
+#         # S0 = 1  # is that right? for standard normal distribution.....????
+#         mNfromData = B*(SN@(phi.T@t))
+#         priormeanVect = np.full(shape=len(mNfromData), fill_value=m0, dtype=float)
+#         mN = np.add(priormeanVect, mNfromData)
+#
+#         # aI = a*I
+#         # aIm0 = aI@m0
+#         # Bphit = np.expand_dims(B*(phi.T@t), axis=1)
+#         # aIplusBphit = np.add(aIm0, Bphit)
+#         # mN = SN@aIplusBphit
+#
+#         eigs_logLHessian = np.linalg.eigvals(B*(phi.T@phi))  # derived by taking logL of Hessian M to max evidence
+#         gamma = getgamma(eigs_logLHessian, a)
+#         B = getB(gamma, mN, t, phi)
+#         Blist.append(B)
+#         a = gamma/(mN.T@mN)
+#         alist.append(a)
+#         itr += 1
+#         if abs(Blist[itr] - Blist[itr-1]) < 0.000001 and abs(alist[itr] - alist[itr-1]) < 0.000001:  # DAMN this seems crazy
+#             switch = 'on'
+#         if itr > 1000:
+#             switch = 'on'
+#     return B, a, a/B, itr
 
 
 

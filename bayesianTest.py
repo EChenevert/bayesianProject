@@ -12,16 +12,19 @@ import bayes_funcs as bml
 
 df = pd.read_csv(r"D:\Etienne\fall2022\CRMS_data\bayes2year\CRMS_dfi.csv", encoding="unicode escape")\
     .set_index('Unnamed: 0')
-    # .drop(['index', 'Community', 'Unnamed: 0', 'level_1',
-    #                                 'Verified Pin Height (mm)', 'Shape_Area', 'Shape_Length',
-    #                                 'LengthScale (perimeter/area)', '90%thUpper_flooding (ft)',
-    #                                 '10%thLower_flooding (ft)', 'std_deviation_avg_flooding (ft)',
-    #                                 'Soil Porewater Specific Conductance (uS/cm)',
-    #                                 'Soil Porewater Temperature (Â°C)'], axis=1)
+# df = pd.read_csv(r"D:\\Etienne\\fall2022\\CRMS_data\\biomassTimeSeries_CRMS.csv", encoding="unicode escape")\
+#     .set_index('Simple site').drop(['index', 'Community', 'Unnamed: 0', 'level_1',
+#                                     'Verified Pin Height (mm)', 'Shape_Area', 'Shape_Length',
+#                                     'LengthScale (perimeter/area)', '90%thUpper_flooding (ft)',
+#                                     '10%thLower_flooding (ft)', 'std_deviation_avg_flooding (ft)',
+#                                     'Soil Porewater Specific Conductance (uS/cm)',
+#                                     'Soil Porewater Temperature (Â°C)'], axis=1)
+# df['Live/Dead Biomass'] = df['Belowground Live Biomass (g/m2)']/df['Belowground Dead Biomass (g/m2)']
+# df = df.drop(['Belowground Live Biomass (g/m2)', 'Belowground Dead Biomass (g/m2)'], axis=1)
 outcome = 'Accretion Rate (mm/yr)'
 # Do some work on the design matrix: all assume identity for basis functions except log relationship for distance
 df['log_distance_to_river_m'] = np.log(df['distance_to_river_m'])
-df = df.drop('distance_to_river_m', axis=1)
+df = df.drop(['distance_to_river_m', 'Community'], axis=1)
 # define target array (should be related to accretion)
 t = np.asarray(df[outcome])
 df = df.drop(outcome, axis=1)
@@ -33,9 +36,9 @@ phi = np.asarray(df)
 # x_scaler = MinMaxScaler()
 # phi = x_scaler.fit_transform(df)
 
-# RSLR = phi[:, 0]
-# df_vars.remove('RSLR (mm/yr)')
-# phi = phi[:, 1:]
+RSLR = phi[:, 0]
+df_vars.remove('RSLR (mm/yr)')
+phi = phi[:, 1:]
 
 # Shuffle the dataset to avoid training in only certain spatial areas
 np.random.seed(42)
@@ -74,10 +77,6 @@ for frac in trainFracArr:
     y_test = t[int(len(phi) * frac):]
 
     B, a, eff_lambda, itr = bml.iterative_prog(X_train, y_train)  # std of 0.5 cuz i normalize variables between 0 and 1
-
-    # var_weights_map_winfo = bml.leastSquares(eff_lambda_winfo, X_train, y_train)
-    # map_MSE_winfo = bml.returnMSE(X_test, var_weights_map_winfo, y_test)
-    # hold_mapMSE_winfo.append(map_MSE_winfo)
 
     var_weights_map = bml.leastSquares(eff_lambda, X_train, y_train)
     map_MSE = bml.returnMSE(X_test, var_weights_map, y_test)
