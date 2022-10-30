@@ -29,9 +29,9 @@ df = df.drop(outcome, axis=1)
 df_vars = list(df.columns.values)
 
 phi = np.asarray(df)
-# Normalize dataset between 0 and 1
-x_scaler = MinMaxScaler()
-phi = x_scaler.fit_transform(df)
+# # Normalize dataset between 0 and 1
+# x_scaler = MinMaxScaler()
+# phi = x_scaler.fit_transform(df)
 
 # RSLR = phi[:, 0]
 # df_vars.remove('RSLR (mm/yr)')
