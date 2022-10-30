@@ -50,7 +50,8 @@ import matplotlib.pyplot as plt
 
 # Find the weights with the obtainesd hyperparameters --> thru the lambda function
 from sklearn.model_selection import train_test_split
-
+MAE_map_ls = []
+MAE_ml_ls = []
 MSE_map_ls = []
 MSE_ml_ls = []
 MSE_map_winfo = []
@@ -80,15 +81,19 @@ for frac in trainFracArr:
 
     var_weights_map = bml.leastSquares(eff_lambda, X_train, y_train)
     map_MSE = bml.returnMSE(X_test, var_weights_map, y_test)
-    hold_mapMSE.append(map_MSE)
+    map_MAE = bml.returnMAE(X_test, var_weights_map, y_test)
+    # hold_mapMSE.append(map_MSE)
 
     var_weights_ml = bml.leastSquares(0, X_train, y_train)  # recall that ml is when lambda is 0
     ml_MSE = bml.returnMSE(X_test, var_weights_ml, y_test)
-    hold_mlMSE .append(ml_MSE)
+    ml_MAE = bml.returnMAE(X_test, var_weights_ml, y_test)
+    # hold_mlMSE.append(ml_MSE)
     # Append train size for plotting
     trainSize.append(frac)
-    MSE_ml_ls.append(np.mean(hold_mlMSE))
-    MSE_map_ls.append(np.mean(hold_mapMSE))
+    MSE_ml_ls.append(ml_MSE)
+    MSE_map_ls.append(map_MSE)
+    MAE_ml_ls.append(ml_MAE)
+    MAE_map_ls.append(map_MAE)
     ML_weights.append(var_weights_ml)
     MAP_weights.append(var_weights_map)
 
@@ -109,8 +114,14 @@ idxMAP = MSE_map_ls.index(min(MSE_map_ls))
 best_map_weights = MAP_weights[idxMAP]
 idxML = MSE_ml_ls.index(min(MSE_ml_ls))
 best_ml_weights = ML_weights[idxML]
-print('Best training Fraction (MAP): ', trainSize[idxMAP], 'MSE: ', MSE_map_ls[idxMAP])
-print('Best training Fraction (ML): ', trainSize[idxML], 'MSE: ', MSE_ml_ls[idxML])
+print('Best training Fraction (MAP): ', trainSize[idxMAP], '\n',
+      'MSE: ', MSE_map_ls[idxMAP], '\n',
+      'MAE: ', MAE_map_ls[idxMAP], '\n',
+      'RMSE: ', np.sqrt(MSE_map_ls[idxMAP]))
+print('Best training Fraction (ML): ', trainSize[idxML], '\n',
+      'MSE: ', MSE_ml_ls[idxML], '\n',
+      'MAE: ', MAE_ml_ls[idxML], '\n',
+      'RMSE: ', np.sqrt(MSE_ml_ls[idxML]))
 
 # To me this plot seems to say that test-train splits should not be used for model evaluation because I
 # seem to have a lot of variability in the MSE
